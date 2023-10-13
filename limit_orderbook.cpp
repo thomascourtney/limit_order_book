@@ -1,6 +1,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <chrono>
+using namespace std;
 
 // Define a structure for an order
 struct Order {
@@ -40,8 +42,8 @@ public:
 
             if (buy_price >= sell_price) {
                 // Match orders
-                int matched_quantity = std::min(buy_orders_at_price.front().quantity, sell_orders_at_price.front().quantity);
-                std::cout << "Matched: Buy " << buy_price << " x " << matched_quantity << " @ Sell " << sell_price << std::endl;
+                int matched_quantity = min(buy_orders_at_price.front().quantity, sell_orders_at_price.front().quantity);
+                cout << "Matched: Buy " << buy_price << " x " << matched_quantity << " @ Sell " << sell_price << endl;
 
                 // Update order quantities and remove if filled
                 buy_orders_at_price.front().quantity -= matched_quantity;
@@ -66,27 +68,51 @@ public:
     }
 
 private:
-    std::map<int, std::vector<Order> > buy_orders;
-    std::map<int, std::vector<Order> > sell_orders;
+    map<int, vector<Order> > buy_orders;
+    map<int, vector<Order> > sell_orders;
 };
 
+
+int getRandomPrice() {
+    // Generate random prices within a certain range (e.g., 80 to 120)
+    return 80 + (rand() % (120 - 80 + 1));
+}
+
+int getRandomQuantity() {
+    // Generate random quantities within a certain range (e.g., 1 to 10)
+    return 1 + (rand() % (10 - 1 + 1));
+}
+
+char getRandomSide() {
+    // Generate a random side ('B' for buy or 'S' for sell)
+    return (rand() % 2 == 0) ? 'B' : 'S';
+}
+
 int main() {
+    auto start_time = chrono::high_resolution_clock::now();
+
     LimitOrderBook orderBook;
 
-    // Add buy orders
-    orderBook.addOrder(Order(1, 100, 10, 'B'));
-    orderBook.addOrder(Order(2, 99, 15, 'B'));
-    orderBook.addOrder(Order(3, 101, 5, 'B'));
-    orderBook.addOrder(Order(4, 98, 20, 'B'));
+    // Initialize random number generator
+    srand(static_cast<unsigned>(chrono::system_clock::now().time_since_epoch().count()));
 
-    // Add sell orders
-    orderBook.addOrder(Order(5, 102, 10, 'S'));
-    orderBook.addOrder(Order(6, 103, 15, 'S'));
-    orderBook.addOrder(Order(7, 101, 5, 'S'));
-    orderBook.addOrder(Order(8, 104, 20, 'S'));
+    // Add 100 random orders
+    for (int i = 1; i <= 1000; ++i) {
+        orderBook.addOrder(Order(i, getRandomPrice(), getRandomQuantity(), getRandomSide()));
+    }
 
-    std::cout << "Order Book Before Matching:" << std::endl;
+    cout << "Order Book Before Matching:" << endl;
     orderBook.matchOrders();
-    std::cout << "Order Book After Matching:" << std::endl;
+    cout << "Order Book After Matching:" << endl;
+
+    // Stop the timer
+    auto end_time = chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
+
+    // Display the execution time
+    cout << "Time taken by the program: " << duration.count() << " microseconds" << endl;
+
     return 0;
 }
