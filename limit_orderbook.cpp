@@ -4,7 +4,6 @@
 #include <chrono>
 using namespace std;
 
-// Define a structure for an order
 struct Order {
     int order_id;
     int price;
@@ -14,7 +13,6 @@ struct Order {
     Order(int id, int p, int q, char s) : order_id(id), price(p), quantity(q), side(s) {}
 };
 
-// Define the limit order book
 class LimitOrderBook {
 public:
     void addOrder(Order order) {
@@ -56,7 +54,6 @@ public:
                     sell_orders_at_price.erase(sell_orders_at_price.begin());
                 }
 
-                // Remove price levels if no more orders at that price
                 if (buy_orders_at_price.empty()) {
                     buy_orders.erase(buy_price);
                 }
@@ -74,13 +71,13 @@ private:
 
 
 int getRandomPrice() {
-    // Generate random prices within a certain range (e.g., 80 to 120)
-    return 80 + (rand() % (120 - 80 + 1));
+    // Generate random prices within a certain range
+    return 80 + (rand() % (200 - 50 + 1));
 }
 
 int getRandomQuantity() {
-    // Generate random quantities within a certain range (e.g., 1 to 10)
-    return 1 + (rand() % (10 - 1 + 1));
+    // Generate random quantities within a certain range
+    return 1 + (rand() % (30 - 1 + 1));
 }
 
 char getRandomSide() {
@@ -93,10 +90,9 @@ int main() {
 
     LimitOrderBook orderBook;
 
-    // Initialize random number generator
     srand(static_cast<unsigned>(chrono::system_clock::now().time_since_epoch().count()));
 
-    // Add 100 random orders
+    // Add random orders
     for (int i = 1; i <= 1000; ++i) {
         orderBook.addOrder(Order(i, getRandomPrice(), getRandomQuantity(), getRandomSide()));
     }
@@ -105,13 +101,10 @@ int main() {
     orderBook.matchOrders();
     cout << "Order Book After Matching:" << endl;
 
-    // Stop the timer
     auto end_time = chrono::high_resolution_clock::now();
 
-    // Calculate the duration
     auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
 
-    // Display the execution time
     cout << "Time taken by the program: " << duration.count() << " microseconds" << endl;
 
     return 0;
