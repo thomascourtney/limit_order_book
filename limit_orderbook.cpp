@@ -72,7 +72,7 @@ private:
 
 int getRandomPrice() {
     // Generate random prices within a certain range
-    return 80 + (rand() % (200 - 50 + 1));
+    return 80 + (rand() % (250 - 50 + 1));
 }
 
 int getRandomQuantity() {
