@@ -15,8 +15,17 @@ public:
 };
 
 class LimitOrderBook {
+private:
+    map<int, vector<Order> > buy_orders;
+    map<int, vector<Order> > sell_orders;
+
 public:
-    void addOrder(Order order) {
+    void addOrder(Order order);
+    void matchOrders();
+
+};
+
+void LimitOrderBook::addOrder(Order order) {
         if (order.side == 'B') {
             // Buy order
             buy_orders[order.price].push_back(order);
@@ -24,51 +33,46 @@ public:
             // Sell order
             sell_orders[order.price].push_back(order);
         }
-    }
+}
 
-    void matchOrders() {
-        for (auto& buy_order : buy_orders) {
-            int buy_price = buy_order.first;
-            auto& buy_orders_at_price = buy_order.second;
+void LimitOrderBook::matchOrders() {
+    for (auto& buy_order : buy_orders) {
+        int buy_price = buy_order.first;
+        auto& buy_orders_at_price = buy_order.second;
 
-            if (sell_orders.empty()) {
-                break; // No matching sell orders
+        if (sell_orders.empty()) {
+            break; // No matching sell orders
+        }
+
+        auto it = sell_orders.begin();
+        int sell_price = it->first;
+        auto& sell_orders_at_price = it->second;
+
+        if (buy_price >= sell_price) {
+            // Match orders
+            int matched_quantity = min(buy_orders_at_price.front().quantity, sell_orders_at_price.front().quantity);
+            cout << "Matched: Buy " << buy_price << " x " << matched_quantity << " @ Sell " << sell_price << endl;
+
+            // Update order quantities and remove if filled
+            buy_orders_at_price.front().quantity -= matched_quantity;
+            sell_orders_at_price.front().quantity -= matched_quantity;
+
+            if (buy_orders_at_price.front().quantity == 0) {
+                buy_orders_at_price.erase(buy_orders_at_price.begin());
+            }
+            if (sell_orders_at_price.front().quantity == 0) {
+                sell_orders_at_price.erase(sell_orders_at_price.begin());
             }
 
-            auto it = sell_orders.begin();
-            int sell_price = it->first;
-            auto& sell_orders_at_price = it->second;
-
-            if (buy_price >= sell_price) {
-                // Match orders
-                int matched_quantity = min(buy_orders_at_price.front().quantity, sell_orders_at_price.front().quantity);
-                cout << "Matched: Buy " << buy_price << " x " << matched_quantity << " @ Sell " << sell_price << endl;
-
-                // Update order quantities and remove if filled
-                buy_orders_at_price.front().quantity -= matched_quantity;
-                sell_orders_at_price.front().quantity -= matched_quantity;
-
-                if (buy_orders_at_price.front().quantity == 0) {
-                    buy_orders_at_price.erase(buy_orders_at_price.begin());
-                }
-                if (sell_orders_at_price.front().quantity == 0) {
-                    sell_orders_at_price.erase(sell_orders_at_price.begin());
-                }
-
-                if (buy_orders_at_price.empty()) {
-                    buy_orders.erase(buy_price);
-                }
-                if (sell_orders_at_price.empty()) {
-                    sell_orders.erase(sell_price);
-                }
+            if (buy_orders_at_price.empty()) {
+                buy_orders.erase(buy_price);
+            }
+            if (sell_orders_at_price.empty()) {
+                sell_orders.erase(sell_price);
             }
         }
     }
-
-private:
-    map<int, vector<Order> > buy_orders;
-    map<int, vector<Order> > sell_orders;
-};
+}
 
 
 int getRandomPrice() {
