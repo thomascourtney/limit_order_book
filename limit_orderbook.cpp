@@ -4,7 +4,7 @@
 #include <chrono>
 using namespace std;
 
-class Order {
+struct Order {
 public:
     int order_id;
     int price;
